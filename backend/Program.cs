@@ -1,7 +1,11 @@
+using backend.Models;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers(); 
+builder.Services.AddDbContext<AppDbContext>(op=>op.UseSqlite("Data Source=Person.db"));
 var app = builder.Build();
     
 

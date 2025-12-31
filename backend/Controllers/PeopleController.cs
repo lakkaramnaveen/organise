@@ -1,5 +1,6 @@
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers
 {
@@ -30,10 +31,40 @@ namespace backend.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllPeople()
+        public async Task<IActionResult> GetAllPeople()
         {
-            var people = _context.People.ToList();
-            return Ok(people);  
+            try
+            {
+                var people = await _context.People.ToListAsync();
+                return Ok(people); // 200 ok status code with the list of people
+                
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving people."); // 500 internal server error
+            }
+             
+        }
+
+        [HttpGet]
+        [Route("{id:int}")]
+        public async Task<IActionResult> GetPersonWithID(int id)
+        {
+            try
+            {
+                // select person with specific ID
+                var person = await _context.People.FindAsync(id);
+                if (person == null)
+                {
+                    return NotFound(); // 404 not found if person does not exist
+                }
+                return Ok(person); // 200 ok status code with the person          
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving people."); // 500 internal server error
+            }
+             
         }
     }
 }

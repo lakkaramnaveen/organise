@@ -21,7 +21,7 @@ namespace backend.Controllers
             {
                 _context.People.Add(person);
                 await _context.SaveChangesAsync();
-                return Ok(person); // 200 ok status code with the added person
+                return CreatedAtRoute(nameof(GetPersonWithID), new { id = person.Id }, person); // 201 created status code with location header
             }
             catch (Exception ex)
             {
@@ -59,6 +59,29 @@ namespace backend.Controllers
                     return NotFound(); // 404 not found if person does not exist
                 }
                 return Ok(person); // 200 ok status code with the person          
+            }
+            catch (System.Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving people."); // 500 internal server error
+            }
+             
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdatePerson(int id, [FromBody] Person updatedPerson)
+        {
+            try
+            {
+                // select person with specific ID
+                var person = await _context.People.FindAsync(id);
+                if (person == null)
+                {
+                    return NotFound(); // 404 not found if person does not exist        
+                }
+                person.FirstName = updatedPerson.FirstName;
+                person.LastName = updatedPerson.LastName;  
+                await _context.SaveChangesAsync();
+                return Ok(person); // 200 ok status code with the updated person 
             }
             catch (System.Exception)
             {
